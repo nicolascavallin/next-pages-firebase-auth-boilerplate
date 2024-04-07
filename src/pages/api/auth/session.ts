@@ -1,28 +1,27 @@
 import { auth } from "@src/utils/firebase-admin";
-import { jwtDecode } from "jwt-decode";
 import { NextApiRequest, NextApiResponse } from "next";
 import { serialize } from "cookie";
-import { COOKIE_ID_CSRF, COOKIE_ID_TOKEN, encryptToken } from "@src/utils/session";
+import { COOKIE_ID_CSRF, COOKIE_ID_TOKEN } from "@src/utils/session";
 
-const createSessionCookies = (res: NextApiResponse, idToken: string) => {
-  const { exp } = jwtDecode(idToken);
+const createSessionCookies = (res: NextApiResponse,) => {
+  // const { exp } = jwtDecode(idToken);
 
-  const token = serialize(COOKIE_ID_TOKEN, idToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    priority: "high",
-    path: '/',
-    ...(!!exp && { expires: new Date(exp * 1000) }),
+  const token = serialize(COOKIE_ID_TOKEN, "idToken", {
+    // httpOnly: true,
+    // secure: true,
+    // sameSite: "strict",
+    // priority: "high",
+    // path: '/',
+    // ...(!!exp && { expires: new Date(exp * 1000) }),
   });
 
-  const csrf = serialize(COOKIE_ID_CSRF, encryptToken(idToken), {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    priority: "high",
-    path: '/',
-    ...(!!exp && { expires: new Date(exp * 1000) }),
+  const csrf = serialize(COOKIE_ID_CSRF, "encryptToken(idToken)", {
+    // httpOnly: true,
+    // secure: true,
+    // sameSite: "strict",
+    // priority: "high",
+    // path: '/',
+    // ...(!!exp && { expires: new Date(exp * 1000) }),
   });
 
   res.setHeader("Set-Cookie", [token, csrf]);
@@ -78,7 +77,7 @@ const handler = async (
     /**
      * If the token is not the same as the one in the cookie, we update the cookie.
      */
-    createSessionCookies(res, idToken.toString());
+    createSessionCookies(res,);
   }
 
   res.status(200).end();
