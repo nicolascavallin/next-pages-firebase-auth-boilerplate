@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { serialize } from "cookie";
 import { COOKIE_ID_CSRF, COOKIE_ID_TOKEN, encryptToken } from "@src/utils/session";
 
-const createSessionCookies = (res: NextApiResponse, idToken: string) => {
+const createSessionCookies = async (res: NextApiResponse, idToken: string) => {
   const { exp } = jwtDecode(idToken);
 
   const token = serialize(COOKIE_ID_TOKEN, idToken, {
@@ -25,10 +25,13 @@ const createSessionCookies = (res: NextApiResponse, idToken: string) => {
     ...(!!exp && { expires: new Date(exp * 1000) }),
   });
 
-  res.setHeader("Set-Cookie", [token, csrf]);
+  res.setHeader("Set-Cookie", token);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  res.setHeader("Set-Cookie", csrf);
+  await new Promise(resolve => setTimeout(resolve, 100));
 };
 
-const removeSessionCookie = (res: NextApiResponse) => {
+const removeSessionCookie = async (res: NextApiResponse) => {
   const token = serialize(COOKIE_ID_TOKEN, '', {
     httpOnly: true,
     secure: true,
@@ -47,7 +50,10 @@ const removeSessionCookie = (res: NextApiResponse) => {
     maxAge: 0,
   });
 
-  res.setHeader("Set-Cookie", [token, csrf]);
+  res.setHeader("Set-Cookie", token);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  res.setHeader("Set-Cookie", csrf);
+  await new Promise(resolve => setTimeout(resolve, 100));
 };
 
 const handler = async (
@@ -64,7 +70,7 @@ const handler = async (
   const verifiedToken = await auth().verifyIdToken(idToken?.toString() || "", true).catch(() => null);
 
   if (!idToken || !verifiedToken) {
-    removeSessionCookie(res);
+    await removeSessionCookie(res);
 
     res.status(200).end();
     return;
@@ -78,7 +84,7 @@ const handler = async (
     /**
      * If the token is not the same as the one in the cookie, we update the cookie.
      */
-    createSessionCookies(res, idToken.toString());
+    await createSessionCookies(res, idToken.toString());
   }
 
   res.status(200).end();
