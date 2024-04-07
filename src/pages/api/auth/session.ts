@@ -27,7 +27,7 @@ const createSessionCookies = async (res: NextApiResponse, idToken: string) => {
 
   res.setHeader("Set-Cookie", token);
   await new Promise(resolve => setTimeout(resolve, 100));
-  res.setHeader("Set-Cookie", csrf);
+  res.appendHeader("Set-Cookie", csrf);
   await new Promise(resolve => setTimeout(resolve, 100));
 };
 
@@ -52,7 +52,7 @@ const removeSessionCookie = async (res: NextApiResponse) => {
 
   res.setHeader("Set-Cookie", token);
   await new Promise(resolve => setTimeout(resolve, 100));
-  res.setHeader("Set-Cookie", csrf);
+  res.appendHeader("Set-Cookie", csrf);
   await new Promise(resolve => setTimeout(resolve, 100));
 };
 
